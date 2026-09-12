@@ -47,17 +47,41 @@ jobs:
           skill = Path(os.environ['GITHUB_WORKSPACE']) / os.environ['PCB_SKILL_PATH']
           report = Path(os.environ['RUNNER_TEMP']) / 'pcb-regression.json'
           command = [sys.executable, str(skill / 'scripts' / 'run_regression.py'), '--out', str(report)]
-          # Windows symlink privileges vary. Preserve skips as PARTIAL evidence there.
-          # Linux hosted runners support those filesystem checks: require no skips.
-          if os.name != 'nt':
-              command.append('--strict-skips')
-          result = subprocess.run(command)
-          if report.exists():
-              data = json.loads(report.read_text(encoding='utf-8'))
-              print('Reported coverage:', data['status'], 'skips:', data['skips'])
-              if data['status'] == 'PARTIAL':
-                  print('::warning::Partial test coverage; inspect skipDetails in the report.')
-          sys.exit(result.returncode)
+          # Hosted Windows TEMP may use an 8.3 alias. Give fixtures a canonical
+          # scratch path before Python's tempfile module initializes in the child.
+          scratch = (Path(os.environ['RUNNER_TEMP']) / 'pcb-skill-fixtures').resolve()
+          scratch.mkdir(parents=True, exist_ok=True)
+          child_env = dict(os.environ, TMP=str(scratch), TEMP=str(scratch), TMPDIR=str(scratch))
+          result = subprocess.run(command, env=child_env)
+          if not report.exists():
+              sys.exit(result.returncode or 1)
+          data = json.loads(report.read_text(encoding='utf-8'))
+          print('Reported coverage:', data['status'], 'skips:', data['skips'])
+          if result.returncode:
+              sys.exit(result.returncode)
+          unexpected = []
+          windows_privilege_tests = (
+              '.DeliveryTests.test_symlink_escape_is_rejected',
+              '.RegressionRunnerTests.test_output_symlink_or_parent_alias_protected',
+          )
+          for row in data['skipDetails']:
+              test, reason = row['test'], row['reason']
+              allowed = (
+                  os.name != 'nt'
+                  and test.endswith('.DeliveryTests.test_existing_self_output_with_different_case_is_excluded')
+                  and reason == 'Windows case-insensitive output path'
+              ) or (
+                  os.name == 'nt'
+                  and test.endswith(windows_privilege_tests)
+                  and 'WinError 1314' in reason
+              )
+              if not allowed:
+                  unexpected.append(row)
+          if unexpected:
+              print('Unexpected skips:', unexpected)
+              sys.exit(1)
+          if data['status'] == 'PARTIAL':
+              print('::warning::Only explicitly expected platform/privilege skips accepted; report remains PARTIAL.')
       - name: Preserve actual regression evidence
         if: always()
         uses: actions/upload-artifact@v7
