@@ -1,0 +1,32 @@
+{
+  "schema": "eda-layout-actual/v1",
+  "units": "mm",
+  "coordinates": "cartesian-y-up",
+  "documentId": "example-pcb-01",
+  "source": {
+    "id": "example-normalized-layout-snapshot",
+    "description": "Synthetic measured snapshot for checker demonstration; not a real native EDA export.",
+    "confirmed": true
+  },
+  "inventoryComplete": true,
+  "board": {"xMinMm": -10, "yMinMm": -6, "xMaxMm": 10, "yMaxMm": 6},
+  "components": [
+    {
+      "id": "J1", "position": {"xMm": -9, "yMm": 0}, "side": "TOP", "throughBoard": true,
+      "envelope": {"xMinMm": -11, "yMinMm": -2, "xMaxMm": -7, "yMaxMm": 2},
+      "connector": {"anchor": {"xMm": -10, "yMm": 0}, "directionDeg": 180}
+    },
+    {
+      "id": "U1", "position": {"xMm": 0, "yMm": 0}, "side": "TOP", "throughBoard": false,
+      "envelope": {"xMinMm": -1, "yMinMm": -1, "xMaxMm": 1, "yMaxMm": 1}
+    },
+    {
+      "id": "C1", "position": {"xMm": 2, "yMm": 0}, "side": "TOP", "throughBoard": false,
+      "envelope": {"xMinMm": 1.5, "yMinMm": -0.5, "xMaxMm": 2.5, "yMaxMm": 0.5}
+    }
+  ],
+  "points": [
+    {"id": "U1.VDD", "componentId": "U1", "xMm": 0.5, "yMm": 0},
+    {"id": "C1.1", "componentId": "C1", "xMm": 2, "yMm": 0}
+  ]
+}

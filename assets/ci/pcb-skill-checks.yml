@@ -1,0 +1,107 @@
+# Copy into the containing repository's .github/workflows/ when CI deployment is intended.
+# Set PCB_SKILL_PATH to the skill's repository-relative directory, or '.' if it is the repo root.
+name: PCB skill software checks
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  PCB_SKILL_PATH: skills/easyeda-pcb-design
+  PYTHONUTF8: '1'
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  with-geometry:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.10', '3.12']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install declared geometry dependency
+        shell: python
+        run: |
+          import os, subprocess, sys
+          from pathlib import Path
+          skill = Path(os.environ['GITHUB_WORKSPACE']) / os.environ['PCB_SKILL_PATH']
+          subprocess.run([sys.executable, '-m', 'pip', 'install', '-r',
+                          str(skill / 'scripts' / 'requirements-manufacturing.txt')], check=True)
+      - name: Run software regression with geometry
+        shell: python
+        run: |
+          import json, os, subprocess, sys
+          from pathlib import Path
+          skill = Path(os.environ['GITHUB_WORKSPACE']) / os.environ['PCB_SKILL_PATH']
+          report = Path(os.environ['RUNNER_TEMP']) / 'pcb-regression.json'
+          command = [sys.executable, str(skill / 'scripts' / 'run_regression.py'), '--out', str(report)]
+          # Windows symlink privileges vary. Preserve skips as PARTIAL evidence there.
+          # Linux hosted runners support those filesystem checks: require no skips.
+          if os.name != 'nt':
+              command.append('--strict-skips')
+          result = subprocess.run(command)
+          if report.exists():
+              data = json.loads(report.read_text(encoding='utf-8'))
+              print('Reported coverage:', data['status'], 'skips:', data['skips'])
+              if data['status'] == 'PARTIAL':
+                  print('::warning::Partial test coverage; inspect skipDetails in the report.')
+          sys.exit(result.returncode)
+      - name: Preserve actual regression evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pcb-skill-${{ matrix.os }}-py${{ matrix.python }}-with-geometry
+          path: ${{ runner.temp }}/pcb-regression.json
+          if-no-files-found: error
+          retention-days: 14
+
+  without-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.10'
+      - name: Verify optional-dependency absence is reported honestly
+        shell: python
+        run: |
+          import json, os, subprocess, sys, venv
+          from pathlib import Path
+          skill = Path(os.environ['GITHUB_WORKSPACE']) / os.environ['PCB_SKILL_PATH']
+          temporary = Path(os.environ['RUNNER_TEMP'])
+          isolated = temporary / 'pcb-stdlib-venv'
+          venv.EnvBuilder(with_pip=False, system_site_packages=False).create(isolated)
+          python = isolated / 'bin' / 'python'
+          subprocess.run([str(python), '-c',
+                          'import importlib.util; assert importlib.util.find_spec("shapely") is None'], check=True)
+          report = temporary / 'pcb-regression-no-geometry.json'
+          subprocess.run([str(python), str(skill / 'scripts' / 'run_regression.py'),
+                          '--out', str(report)], check=True)
+          data = json.loads(report.read_text(encoding='utf-8'))
+          assert data['status'] == 'PARTIAL', data['status']
+          assert data['testsRun'] > 0 and data['passed'] > 0, data
+          assert any('Shapely' in row['reason'] for row in data['skipDetails']), data['skipDetails']
+          print('Expected partial coverage without Shapely; supported checks ran, geometry skips recorded.')
+      - name: Preserve dependency-absence evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pcb-skill-ubuntu-py3.10-without-geometry
+          path: ${{ runner.temp }}/pcb-regression-no-geometry.json
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,17 @@
+{
+  "schema": "eda-netlist/v1",
+  "nets": {
+    "3V3": [{"ref": "U1", "pin": "1"}, {"ref": "C1", "pin": "1"}],
+    "GND": [{"ref": "U1", "pin": "2"}, {"ref": "C1", "pin": "2"}, {"ref": "J1", "pin": "10"}]
+  },
+  "unconnected": [{"ref": "U1", "pin": "3", "no_connect": true}],
+  "physicalPads": [
+    {"id": "expected-u1-1", "ref": "U1", "pin": "1", "net": "3V3"},
+    {"id": "expected-u1-2", "ref": "U1", "pin": "2", "net": "GND"},
+    {"id": "expected-u1-3", "ref": "U1", "pin": "3", "net": null},
+    {"id": "expected-c1-1", "ref": "C1", "pin": "1", "net": "3V3"},
+    {"id": "expected-c1-2", "ref": "C1", "pin": "2", "net": "GND"},
+    {"id": "expected-shell-left", "ref": "J1", "pin": "10", "net": "GND"},
+    {"id": "expected-shell-right", "ref": "J1", "pin": "10", "net": "GND"}
+  ]
+}

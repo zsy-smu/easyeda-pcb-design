@@ -1,0 +1,135 @@
+{
+  "schema": "easyeda-regression-report/v1",
+  "scope": "Skill software regression only; no EDA, circuit or physical-board qualification.",
+  "python": "3.10.7 (tags/v3.10.7:6cc6b13, Sep  5 2022, 14:08:36) [MSC v.1933 64 bit (AMD64)]",
+  "startedAtUtc": "2026-09-12T13:56:07.612719+00:00",
+  "strictSkips": false,
+  "status": "PARTIAL",
+  "exitCode": 0,
+  "testsRun": 132,
+  "passed": 130,
+  "failures": 0,
+  "errors": 0,
+  "skips": 2,
+  "skipDetails": [
+    {
+      "test": "_pcb_regression_0a1c095de3c5fcfe.DeliveryTests.test_symlink_escape_is_rejected",
+      "reason": "[WinError 1314] 客户端没有所需的特权。: [temporary paths omitted]",
+      "phase": "test",
+      "privateTemporaryPathsRedacted": true
+    },
+    {
+      "test": "_pcb_regression_6edc05e4134fe689.RegressionRunnerTests.test_output_symlink_or_parent_alias_protected",
+      "reason": "Symlink creation unavailable: [WinError 1314] 客户端没有所需的特权。: [temporary paths omitted]",
+      "phase": "test",
+      "privateTemporaryPathsRedacted": true
+    }
+  ],
+  "inputs": [
+    {
+      "path": "assets/ci/pcb-skill-checks.yml",
+      "size": 4486,
+      "sha256": "24a17facdecdc9804b945942b9f1489e6abd06766047a2ab9455887e8ef7f503"
+    },
+    {
+      "path": "assets/examples/layout-actual.json",
+      "size": 1198,
+      "sha256": "38926f82a185edb5224a8f07602ec78d2adc700d636acc8e4a3e7c411c6643cc"
+    },
+    {
+      "path": "assets/examples/layout-requirements.json",
+      "size": 1364,
+      "sha256": "1cf634611bcca452c02446c0bca909ff232abf45c394fd47026f8a7fec5bb740"
+    },
+    {
+      "path": "assets/examples/manufacturing-expected.json",
+      "size": 1439,
+      "sha256": "d557bc7324021f006c56080cd4a58f4af6c744822915f7f0761f1109446ef6db"
+    },
+    {
+      "path": "assets/examples/netlist-actual.json",
+      "size": 798,
+      "sha256": "4a35b5c31039dc6ec4d66846693e8eca2f238d5460e8768146c64990b6dacaaf"
+    },
+    {
+      "path": "assets/examples/netlist-expected.json",
+      "size": 791,
+      "sha256": "969bf928aab8ec2d9a3563d904d7ca3cff03ec0bcf2a251af57f0cba7a398c3d"
+    },
+    {
+      "path": "assets/templates/design-record.md",
+      "size": 3262,
+      "sha256": "31e3b145f0a263cb469920c5009812a4a465ca83297b55c671e897b6e23373c6"
+    },
+    {
+      "path": "scripts/check_delivery.py",
+      "size": 11666,
+      "sha256": "7112bac087af5437476eee72a78fee83f0521dcc1df32189fb09bf0e0d23c5e7"
+    },
+    {
+      "path": "scripts/check_evidence.py",
+      "size": 17452,
+      "sha256": "6153bfde6d200842ab1372f292e7998b67fcb4f2535f3f6635a6999d70b25389"
+    },
+    {
+      "path": "scripts/check_layout.py",
+      "size": 19286,
+      "sha256": "dc2c08227433733bee510934175102c02c28440b173af66459b43fe23162a008"
+    },
+    {
+      "path": "scripts/check_manufacturing.py",
+      "size": 43487,
+      "sha256": "0cc58789d850423d7625157e7c968bebf40e09d89c75c4a3a9b69a5cdac95347"
+    },
+    {
+      "path": "scripts/compare_netlists.py",
+      "size": 16175,
+      "sha256": "043776c8ac449c9f1fe6f369ee22829b1e5c768efd4f2b8bfb38116333ea4e50"
+    },
+    {
+      "path": "scripts/requirements-manufacturing.txt",
+      "size": 16,
+      "sha256": "01f583b3846a6a3e15d3951a510415c34cc9085c2d3cbad30a4470dba02ad345"
+    },
+    {
+      "path": "scripts/run_regression.py",
+      "size": 12265,
+      "sha256": "a2a32bd3afdd702f56ed5e2cc5bfda8c434c582832028ca51cd4133fe6f6d5a6"
+    },
+    {
+      "path": "tests/test_delivery.py",
+      "size": 9232,
+      "sha256": "5696fc980916704e3e9f7cbb8e7fcd8dab632fe8de9290b7f36159fff6c07a9b"
+    },
+    {
+      "path": "tests/test_evidence.py",
+      "size": 12009,
+      "sha256": "6325d454435020abab6eb84b3b661282f7952fd7afb4addc4b88b07a3ed36e6f"
+    },
+    {
+      "path": "tests/test_layout.py",
+      "size": 12989,
+      "sha256": "9d42a7bd77851cdf45c00848fc687e052d2a75966ef76bd88da06edd86ac6637"
+    },
+    {
+      "path": "tests/test_manufacturing.py",
+      "size": 16641,
+      "sha256": "fe614b891a044d1a9d1bd4767739d668f94a77ff2a5d7a1c860c1ed3f5854e07"
+    },
+    {
+      "path": "tests/test_netlists.py",
+      "size": 8845,
+      "sha256": "a9651421f503ef80662e2e3888fffc40b93751ba3f95f085b1f773f858c10945"
+    },
+    {
+      "path": "tests/test_regression.py",
+      "size": 8893,
+      "sha256": "ed072087010e587f833f6335e6633bcf04fb0289f6968a92fab1e9615b05fc30"
+    },
+    {
+      "path": "tests/workflow-scenarios.md",
+      "size": 3965,
+      "sha256": "e0df6ed506205b4ac20119372ad4e85ddcd01f3df5a2d46aa7b380a9caa99f9b"
+    }
+  ]
+}

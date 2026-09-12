@@ -1,0 +1,36 @@
+{
+  "schema": "eda-layout-requirements/v1",
+  "units": "mm",
+  "coordinates": "cartesian-y-up",
+  "documentId": "example-pcb-01",
+  "source": {
+    "id": "example-confirmed-mechanical-requirements",
+    "description": "Synthetic example only: independently specified connector, component inventory and space reservations.",
+    "confirmed": true,
+    "independentOfActual": true
+  },
+  "board": {"xMinMm": -10, "yMinMm": -6, "xMaxMm": 10, "yMaxMm": 6, "toleranceMm": 0.01},
+  "components": [
+    {
+      "id": "J1",
+      "side": "TOP",
+      "throughBoard": true,
+      "fixedPosition": {"xMm": -9, "yMm": 0, "toleranceMm": 0.1},
+      "allowedOverhangMm": {"left": 1, "right": 0, "top": 0, "bottom": 0},
+      "connector": {
+        "anchor": {"xMm": -10, "yMm": 0, "toleranceMm": 0.1},
+        "directionDeg": 180,
+        "directionToleranceDeg": 2
+      }
+    },
+    {"id": "U1", "side": "TOP", "throughBoard": false},
+    {"id": "C1", "side": "TOP"}
+  ],
+  "keepouts": [
+    {"id": "reserved-top", "rect": {"xMinMm": 5, "yMinMm": -2, "xMaxMm": 6, "yMaxMm": 2}, "sides": ["TOP"]},
+    {"id": "reserved-bottom", "rect": {"xMinMm": -2, "yMinMm": 3, "xMaxMm": 2, "yMaxMm": 4}, "sides": ["BOTTOM"]}
+  ],
+  "maxDistances": [
+    {"id": "U1-VDD-to-C1-1", "fromPoint": "U1.VDD", "fromComponentId": "U1", "toPoint": "C1.1", "toComponentId": "C1", "maxMm": 2.2}
+  ]
+}

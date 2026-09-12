@@ -1,0 +1,4 @@
+interface:
+  display_name: "嘉立创原理图与 PCB 设计"
+  short_description: "从需求到原理图、PCB布局布线与交付，结合工程经验和可执行检查工具"
+  default_prompt: "使用 $easyeda-pcb-design，根据现有资料继续这块板的设计或修改，保留已确认要求，完成相应布局布线、验证与可复核交付。"

@@ -1,0 +1,17 @@
+{
+  "schema": "eda-netlist/v1",
+  "components": [
+    {"ref": "U1", "pins": [{"number": "1", "net": "3V3"}, {"number": "2", "net": "GND"}, {"number": "3", "net": null, "no_connect": true}]},
+    {"ref": "C1", "pins": [{"number": "1", "net": "3V3"}, {"number": "2", "net": "GND"}]},
+    {"ref": "J1", "pins": [{"number": "10", "net": "GND"}]}
+  ],
+  "physicalPads": [
+    {"id": "u1-a", "ref": "U1", "pin": "1", "net": "3V3"},
+    {"id": "u1-b", "ref": "U1", "pin": "2", "net": "GND"},
+    {"id": "u1-c", "ref": "U1", "pin": "3", "net": null},
+    {"id": "c1-a", "ref": "C1", "pin": "1", "net": "3V3"},
+    {"id": "c1-b", "ref": "C1", "pin": "2", "net": "GND"},
+    {"id": "j1-shell-a", "ref": "J1", "pin": "10", "net": "GND"},
+    {"id": "j1-shell-b", "ref": "J1", "pin": "10", "net": "GND"}
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schema": "easyeda-manufacturing-expected/v1",
+  "toleranceMm": 0.003,
+  "board": {
+    "widthMm": 20,
+    "heightMm": 12,
+    "expectedCopperLayers": 2,
+    "outlinePointsMm": [
+      [
+        0,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        20,
+        0
+      ],
+      [
+        20,
+        12
+      ],
+      [
+        0,
+        12
+      ],
+      [
+        0,
+        0
+      ]
+    ]
+  },
+  "holes": [
+    {
+      "id": "via-1",
+      "kind": "via",
+      "shape": "ROUND",
+      "xMm": 3,
+      "yMm": 4,
+      "diameterMm": 0.3,
+      "totalLengthMm": 0.3,
+      "rotationCanvasDeg": 0,
+      "plated": true
+    },
+    {
+      "id": "connector-1",
+      "kind": "pad",
+      "shape": "ROUND",
+      "xMm": 10,
+      "yMm": 5,
+      "diameterMm": 1,
+      "totalLengthMm": 1,
+      "rotationCanvasDeg": 0,
+      "plated": true
+    },
+    {
+      "id": "mount-slot",
+      "kind": "mounting",
+      "shape": "SLOT",
+      "xMm": 15,
+      "yMm": 8,
+      "diameterMm": 1,
+      "totalLengthMm": 2,
+      "rotationCanvasDeg": 45,
+      "plated": true
+    }
+  ],
+  "provenance": {
+    "description": "Synthetic small-board example; replace with this task\u2019s independently established design expectation."
+  },
+  "reviewEvidence": {
+    "status": "EXAMPLE_ONLY_NOT_NATIVE_EVIDENCE"
+  }
+}
