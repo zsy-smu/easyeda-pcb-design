@@ -22,6 +22,8 @@ python /work/tools/easyeda-pcb-design/scripts/run_regression.py --out /work/repo
 
 制造几何测试需要 [声明的 Shapely 依赖](../scripts/requirements-manufacturing.txt)，在项目隔离环境安装；缺失时几何测试跳过，其余适用测试仍运行。入口本身不安装任何依赖。
 
+局部路由、地铜与实际铜测试同样依赖Shapely。`test_local_route.py`检查固定宽度绕障/真实via/预算/NPTH及钻孔退让；`test_ground_plane.py`检查内孔等价、浮地、被NPTH切断的地轨、PTH跨层和负退让拒绝；`test_copper_connectivity.py`检查短/断/残缺焊盘/NC/NPTH与额外铜层拒绝。另可运行`python scripts/run_copper_benchmarks.py --out-dir NEW_DIR`取得10组可检查制造ZIP、预期和报告；坏例预期FAIL，修复例预期PASS，不能把“所有例子都PASS”当基准目标。
+
 | 结果 | 退出码与含义 |
 |---|---|
 | `PASS` | `0`，实际运行的测试通过，无跳过/预期失败；仅覆盖软件测试范围 |

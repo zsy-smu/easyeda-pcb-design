@@ -28,6 +28,9 @@ description: 在嘉立创 EDA（EasyEDA）中，通过用户AI Bridge/MCP或现�
 | 原理图绘制、整理、改名或移动已连线模块 | [原理图与连接保持](references/schematic.md) |
 | 拓扑分区、器件摆放、端子方向、试布线与局部改善、覆铜和泪滴 | [PCB 布局与验证](references/pcb.md) |
 | 新板布局、功率/反馈回路、外壳挤压、反复移动仍然拥挤 | [布局方法](references/layout-method.md)，先查本体与使用空间，再走关键回路 |
+| 从零开始做供电/启动/脚网、去耦与回流，避免只靠DRC判断 | [基础核对](references/design-foundations.md)，配合准确器件手册 |
+| 需要从实际故障直接找到排查数据、修复步骤和接受条件 | [已验证故障案例](references/worked-failures.md)，包含布局挤压、断铜/PTH、层探针、换件与往返 |
+| 两层局部避障布线、地铜候选、实际导出铜连接检查 | [局部路由](references/local-routing.md)、[地铜生成](references/ground-tool.md)、[实体铜审计](references/copper-tool.md)；生成候选后仍须写回/原生与导出验收 |
 | 板框识别、Gerber 导出、制造文件交付 | [PCB 布局与验证](references/pcb.md)；接口识别差异见 [后台经验](references/bridge.md) |
 | MCP 异常、导入未完成、图形存在但连接异常 | [后台接口与本机经验](references/bridge.md) |
 | 过孔尺寸/连接读回异常、封装定位孔、实际铺铜渲染 | [原生几何与检查差异](references/native-geometry.md)，仅在相关接口/几何问题出现时读取 |
@@ -52,6 +55,9 @@ description: 在嘉立创 EDA（EasyEDA）中，通过用户AI Bridge/MCP或现�
 | 实际制造 ZIP 的板框、层数及逐孔几何符合独立给定的要求 | `scripts/check_manufacturing.py EXPORT.zip --expected EXPECTED.json --out REPORT.json` | [制造工具](references/manufacturing-tool.md)，含要求模板与支持范围 |
 | 已确认的矩形板框、器件位置/面、接口朝向、器件禁布和指定点间距 | `scripts/check_layout.py REQUIREMENTS.json ACTUAL.json --out REPORT.json` | [布局合同工具](references/layout-tool.md)，须先适配坐标和完整器件清单；不检查实体铜或回流 |
 | 2D包络粗筛与分离建议 | `scripts/check_placement_collision.py ACTUAL.json --out REPORT.json` | 显式本体框参与检查；焊盘框不能代替最大外壳。建议移动后重新检查全板；不检查铜短路或3D装配 |
+| 一对实际焊盘间的固定线宽双层避障候选 | `scripts/plan_local_route.py INPUT.json --out CANDIDATE.json` | [路由合同](references/local-routing.md)，有宽度避障、真实via、预算与未布通原因；不降宽、不删线、不写EDA，不代替关键回路规划 |
+| 依据完整几何重建带孔洞的实心铜候选 | `scripts/build_ground_plane.py INPUT.json --out CANDIDATE.json` | [地铜合同](references/ground-tool.md)，明确锚定焊盘、异网/孔/机械避让，分割内孔并核面积等价；候选不能代替实际全网连接 |
+| 实际两面Gerber/PTH/NPTH的逐焊盘铜连接 | `scripts/check_copper_connectivity.py EXPORT.zip --expected EXPECTED.json --out REPORT.json` | [铜检查](references/copper-tool.md)，含覆盖率、短路、同网断组、NC误连和浮岛；拒绝不支持铜对象，独立预期不可从待检铜自生 |
 | 已声明的边缘接口位置/方向粗筛 | `scripts/check_connector_orientation.py TARGETS.json --out REPORT.json` | 按真实插接形式选择适用对象；板内/垂直接口不套边缘规则，USB是否跨边依据外壳图；preset不是当前板要求 |
 | 两脚元件遍历 0/90/180/270 选飞线最短且不交叉的角度（旋转不反接极性） | `scripts/optimize_orientation.py TARGETS.json --out SPEC.json`（省略用 preset） | 输入 `orientation-targets/v1`，输出 `orientation-spec/v1`；曼哈顿距离+线段交叉，只建议 rotation，不 swap pin |
 | 已有检查报告是否仍对应当前输入，且覆盖本次声明的范围 | `scripts/check_evidence.py PLAN.json --out REPORT.json` | [证据时效工具](references/evidence-tool.md)，读取报告原有输入哈希，不给旧报告补盖章 |
@@ -59,7 +65,7 @@ description: 在嘉立创 EDA（EasyEDA）中，通过用户AI Bridge/MCP或现�
 | EPRO实例/多单元/封装引用，以及完整原生导入差异分类 | `scripts/check_project_handoff.py PROJECT.epro --changes BOARD=REPORT.csv --out REPORT.json` | [往返验收](references/handoff-roundtrip.md)。只读检查受支持旧版JSON行式归档；不证明原生DRC、实体铜或新客户端已验收 |
 
 - 网表与交付工具只用 Python 标准库。制造工具另需 Shapely；缺失时在可用的隔离环境按 [依赖文件](scripts/requirements-manufacturing.txt) 配置，不静默安装全局依赖。
-- 检查工具统一以 `0` 表示所检查范围通过，`1` 表示检测到不符，`2` 表示输入、依赖或格式不支持。读取 JSON 报告中的范围和限制；未完成解析不算通过。
+- 检查工具以 `0` 表示所检查范围通过，`1` 表示检测到不符，`2` 表示输入、依赖或格式不支持。生成器的 `0/CANDIDATE`仅表示得到离线候选；局部路由`1/BLOCKED`表示未得路线。读取 JSON 报告中的范围和限制；未完成解析不算通过。
 - 脚本读取指定文件，写入独立报告，不连接或修改 EDA。预期网表来自设计逻辑，制造要求来自当前已核对的源数据；不能用待检文件自生要求后声称完成独立验证。多板导出必须明确目标文档。
 - 报告仅覆盖该脚本列出的事实：网名相同不证明实体铜接通，Gerber 板框/钻孔通过不证明全部铜形状正确，哈希相同不证明原设计可靠。原生保存、功能、DRC 与实体连接仍按对应阶段核验。
 

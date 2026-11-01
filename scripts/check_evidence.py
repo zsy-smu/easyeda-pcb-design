@@ -21,12 +21,14 @@ REPORT_SCHEMA = "eda-evidence-check/v1"
 NETLIST = "eda-netlist-comparison/v1"
 MANUFACTURING = "easyeda-manufacturing-check/v1"
 LAYOUT = "eda-layout-report/v1"
-SUPPORTED = {NETLIST, MANUFACTURING, LAYOUT}
+COPPER = "easyeda-copper-report/v1"
+SUPPORTED = {NETLIST, MANUFACTURING, LAYOUT, COPPER}
 SCOPES = {
     NETLIST: {"logical-connected", "logical-all-listed", "explicit-nc",
               "physical-assignment", "physical-multiplicity"},
     MANUFACTURING: {"outline", "drill-geometry", "copper-layer-inventory", "known-plating"},
     LAYOUT: {"declared-rectangular-layout-contract"},
+    COPPER: {"actual-two-layer-copper", "physical-pad-coverage", "pth-npth-connectivity", "explicit-nc-contact"},
 }
 LIMITATIONS = [
     "Checks report bytes, original input hashes, declared coverage and available identity only.",
@@ -202,6 +204,31 @@ def adapt_layout(report):
     return bindings, {report["scope"]}, {"documentId": ids["actual"]}, None
 
 
+def adapt_copper(report):
+    require(report.get('coverageScope') == 'two-layer-solid-linear-copper', 'Unknown copper coverage')
+    count = report.get('padCount')
+    require(type(count) is int and count > 0, 'No physical copper pad contract')
+    for key in ('missingOrDamagedPads', 'copperShorts', 'ncContacts'):
+        require(isinstance(report.get(key), list), 'Missing copper findings: ' + key)
+        require(not report['passed'] or not report[key], 'PASS contradicts copper findings')
+    nets = report.get('netConnectivity')
+    require(isinstance(nets, dict) and bool(nets), 'No copper net results')
+    for value in nets.values():
+        connected = require_bool(value.get('connected'), 'net.connected')
+        require(not report['passed'] or connected, 'PASS contradicts disconnected copper')
+    coverage = report.get('padCoverage')
+    require(isinstance(coverage, list) and len({p['id'] for p in coverage}) == count, 'Incomplete pad coverage inventory')
+    threshold = report.get('minPadCoverage')
+    require(type(threshold) in (int, float) and math.isfinite(threshold) and 0 < threshold <= 1, 'Invalid coverage threshold')
+    for pad in coverage:
+        ratio = pad.get('ratio')
+        require(type(ratio) in (int, float) and math.isfinite(ratio) and 0 <= ratio <= 1.000001, 'Invalid pad coverage')
+        require(not report['passed'] or ratio + 1e-6 >= threshold, 'PASS contradicts damaged pad')
+    bindings = report.get('inputs')
+    require(isinstance(bindings, dict) and set(bindings) == {'export', 'expected'}, 'Missing copper input bindings')
+    return bindings, SCOPES[COPPER], {}, None
+
+
 def audit_check(item):
     result = {"id": item["id"], "expectedSchema": item["expectedSchema"], "findings": [], "inputs": {}}
     def finding(code, message, severity="FAIL", **details):
@@ -224,7 +251,7 @@ def audit_check(item):
         passed = require_bool(report.get("passed"), "report.passed")
         require(report.get("status") in {"PASS", "FAIL"}, "Report did not complete a supported check")
         require((report["status"] == "PASS") == passed, "Contradictory report status/passed")
-        adapter = {NETLIST: adapt_netlist, MANUFACTURING: adapt_manufacturing, LAYOUT: adapt_layout}[schema]
+        adapter = {NETLIST: adapt_netlist, MANUFACTURING: adapt_manufacturing, LAYOUT: adapt_layout, COPPER: adapt_copper}[schema]
         bindings, coverage, context, selection = adapter(report)
         require(set(bindings) == set(item["inputs"]), "Plan must bind every original input role, with no omissions or extras")
         result["availableScope"] = sorted(coverage)

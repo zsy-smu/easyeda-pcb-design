@@ -31,8 +31,11 @@ Python 3.10+ 标准库，依赖同目录 `check_delivery.py` 的公共文件保�
 | `eda-netlist-comparison/v1` | `expected`,`actual`；报告使用别名文件时另需 `aliases` | `logical-connected`；全量已列引脚范围可加 `logical-all-listed`,`explicit-nc`；报告实际提供相应实体清单时可加 `physical-assignment`,`physical-multiplicity` |
 | `easyeda-manufacturing-check/v1` | `expected`,`export` | `outline`,`drill-geometry`,`copper-layer-inventory`；镀层已按声明要求验证时可加 `known-plating` |
 | `eda-layout-report/v1` | `requirements`,`actual` | `declared-rectangular-layout-contract`，保留该工具自身的全部范围限制 |
+| `easyeda-copper-report/v1` | `expected`,`export` | `actual-two-layer-copper`,`physical-pad-coverage`,`pth-npth-connectivity`,`explicit-nc-contact`；只接受支持范围内已完成的实体铜报告，不能以CANDIDATE替代 |
 
 网表的 `connected` 不覆盖全部已列引脚或NC；制造几何通过不自动证明镀层已知。布局报告可比较其原本绑定的 `documentId`，此ID仍是布局输入声明，不是原生 API 的独立认证。当前网表/制造 v1 报告不提供可信项目/文档身份；要求该身份会返回未知，而非把计划值补进去。当前布局报告也不提供项目ID。
+
+实体铜报告同样只绑定文件，没有原生工程/页身份；它支持的Gerber语法、覆盖率容差与未检查的载流/回流见[铜工具](copper-tool.md)。既有报告改了输入文件就要重算，检查器不会重新运行布线或Gerber解析。
 
 交付目录请直接运行 `check_delivery.py verify`，以重新扫描目录。旧交付报告、原生 DRC 布尔值、手工点评、回归报告及其他未知 schema 不在本工具范围内，不自动转换成已认证报告。
 

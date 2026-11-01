@@ -1,0 +1,18 @@
+{
+  "schema": "easyeda-ground-input/v1",
+  "unit": "mm",
+  "sourceRevision": "synthetic-example-only",
+  "net": "GND",
+  "board": [[0,0],[20,0],[20,12],[0,12]],
+  "edgeClearance": 0.5,
+  "minBridgeWidth": 0.3,
+  "minIslandArea": 0.01,
+  "clearanceByNet": {"5V":0.4,"NC":0.4},
+  "anchorPadIds": ["U1.GND"],
+  "copper": [
+    {"id":"U1.GND","kind":"pad","net":"GND","layers":[1],"x":2,"y":3,"width":1,"height":1,"shape":"rect"},
+    {"id":"J1.5V","kind":"circle","net":"5V","layers":[1,2],"x":8,"y":6,"diameter":2}
+  ],
+  "holes": [],
+  "keepouts": [{"kind":"circle","x":14,"y":6,"diameter":3,"clearance":0.2}]
+}

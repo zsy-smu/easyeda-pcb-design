@@ -7,7 +7,7 @@
 
 **适用场景：** 新板设计、原理图整理、PCB 布局布线、改板、审查及有资料支持的复刻。重点是连接正确、机械可装、保存有效、检查范围清楚。
 
-This repository provides a Chinese-first agent skill for EasyEDA schematic and PCB workflows, offline validators, and a guarded command-port client for an existing AI-EDA Bridge. It does **not** bundle the EDA extension/server or an autonomous placement/routing engine. Hardware examples describe historical lessons, not qualified reference designs.
+This repository provides a Chinese-first agent skill for EasyEDA workflows, a guarded client for an existing AI-EDA Bridge, offline validators, a bounded fixed-width two-layer connection planner, and an anchored plane candidate generator. It does **not** bundle the EDA extension/server or a complete autonomous board-placement/routing engine. Hardware examples describe historical lessons, not qualified reference designs.
 
 ## 包含什么
 
@@ -18,6 +18,9 @@ This repository provides a Chinese-first agent skill for EasyEDA schematic and P
 | [AI Bridge操作手册](references/ai-bridge.md) | 已有Bridge的连接、协议、参数、身份与单位、批量失败和真实文件导出 |
 | [完整任务执行手册](references/execution-playbook.md) | 从需求/选型到原理图、布局、布线、实铜与往返验收的执行步骤 |
 | [布局方法](references/layout-method.md) | 最大本体、操作空间、功率/反馈回路、候选比较及常见挤压/绕线问题 |
+| [基础核对](references/design-foundations.md) / [完整故障处理案例](references/worked-failures.md) | 电源预算、启动/脚网、去耦/回流，以及双板实际问题的证据、操作与复验 |
+| [局部路由](references/local-routing.md) / [地铜生成](references/ground-tool.md) | 固定线宽避障、真实via、受限搜索、真实锚点和孔洞保持；只生成离线候选 |
+| [实际铜检查](references/copper-tool.md) | 真正Gerber+PTH/NPTH逐焊盘覆盖与短/断检查，附可生成的坏板/修复板反例 |
 | [scripts/](scripts/) | 网表、制造文件、布局约束、证据时效、交付文件检查与回归入口 |
 | [assets/examples/](assets/examples/) | 可运行的网表和布局输入示例、制造要求示例 |
 | [assets/templates/](assets/templates/) | 设计记录模板 |
@@ -77,7 +80,7 @@ node scripts/ai_bridge_client.cjs probe --out "D:/pcb-task/bridge-probe.json"
 
 ## 运行检查工具
 
-Python 3.10+。网表、布局、证据和交付检查使用标准库；制造几何检查另需 Shapely 2.x。
+Python 3.10+。网表、布局约束、证据和交付检查使用标准库；制造/实体铜、局部路由与地铜几何工具另需 Shapely 2.x。
 
 ```bash
 python -m venv .venv
@@ -105,6 +108,10 @@ python scripts/run_regression.py --out ../pcb-skill-regression.json
 | `check_project_handoff.py` | 受支持旧式EPRO的实例/多单元/库引用，以及完整原生导入CSV差异；不替代重导入DRC |
 | `calc_parameters.py` | 稳态线宽初估与显式参数整理；缺脉冲/差分/间隙/爬电依据时保持待审，不使用通用预设代替设计 |
 | `check_placement_collision.py` | 已建模的本体/焊盘2D包络粗筛与分离建议；不替代3D与实铜检查 |
+| `plan_local_route.py` | 显式两端点/固定线宽/完整障碍的双层A*候选；真实via与钻孔退让，失败不自动降宽 |
+| `build_ground_plane.py` | 指定锚定焊盘的实心铜候选；孔洞无损分割、异网与机械避让，不直接写EDA |
+| `check_copper_connectivity.py` | 实际两面Gerber+全部PTH/NPTH，焊盘覆盖率、短/断、NC和浮岛；受限语法明确拒绝 |
+| `run_copper_benchmarks.py` | 生成10组坏板/修复版制造样例、独立预期与报告；坏例必须失败、修复例必须通过 |
 | `ai_bridge_client.cjs` | 已有Bridge的静态协议清单、轻量探针、带工程/页/类型校验的调用及实际文件字节取回 |
 | `run_regression.py` | 运行软件测试并记录输入哈希、失败与跳过；报告须写在 skill 目录外 |
 
