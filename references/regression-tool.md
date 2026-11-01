@@ -1,5 +1,11 @@
 # 可移植软件回归
 
+新增工具的回归还覆盖：包络包含时建议位移必须真正分开、显式本体不被焊盘框覆盖、非有限数拒绝、稳态线宽不被项目最小值压低、脉冲/差分/爬电不凭预设自动定值、原生UTF-16/tab报告、多单元身份、同内容不同库引用，以及总ZIP/不支持版本不得当空工程通过。它们验证软件边界，不证明真实EDA重导入或电气性能。
+
+`test_bridge_client.py`调用Node内置测试器执行`test_bridge_client.cjs`，使用假WebSocket测试ID相关、错误分层、身份前后校验、批量部分失败、超时不重放、文件回执和本地协议清单；不连接真实EDA、不启动Bridge。没有Node时会明确跳过，不能称在线能力已验收。直接运行可用`node --test --test-reporter=tap tests/test_bridge_client.cjs`。
+
+公开CI与可复制模板显式配置Node22，使用固定提交的[官方setup-node](https://github.com/actions/setup-node)，关闭无关的包管理缓存；与几何/标准库测试一起运行Bridge客户端测试。这个工具仅依赖Node内置API，CI不安装或启动AI-EDA/EDA扩展。Windows/Linux上的跳过规则仍按下文检查，不接受新增的“缺少Node”跳过。
+
 `scripts/run_regression.py` 使用 Python 3.10+ 标准库，从脚本位置找到 skill，递归加载 `tests/` 下全部 `test_*.py`。测试模块独立加载，支持 `load_tests`；不支持包相对导入。自身测试只运行临时最小 suite，不递归启动整个回归。运行测试前应信任本地测试代码；这不是沙箱或 EDA/实板验证。
 
 本机可从任意工作目录运行；报告放在 skill 目录外：
